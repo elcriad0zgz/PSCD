@@ -1,0 +1,27 @@
+#------------------------------------------------------------------------------
+# File:   Makefile_p2_e2
+# Author: PSCD-Unizar
+# Date:   octubre 2019
+# Coms:   Ejemplo de Makefile para la práctica 1 de PSCD
+#         "make -f Makefile_p2_e2" compilará y generará el ejecutable "practica_1_V1"
+#         "make -f Makefile_p2_e2 clean" borra todo lo generado, si existe
+#---------------------------------------------------------
+#definición de variables
+CC=g++
+CPPFLAGS=-I. -std=c++11      #opciones de compilación
+LDFLAGS=-pthread             #opciones de enlazado (linkado)
+RM=del
+
+all: main_p2_e2
+#-----------------------------------------------------------
+# Compilacion
+main_p2_e2.o: main_p2_e2.cpp
+	${CC} -c main_p2_e2.cpp ${CPPFLAGS}
+#linkado
+main_p2_e1: main_p2_e2.o
+	${CC} main_p2_e2.o -o main_p2_e2 ${LDFLAGS}
+#-----------------------------------------------------------	
+# LIMPIEZA de todo lo generado. OjO: se borrarán sin preguntar
+# RM es una de las variables predefinidas en make: invoca borrado de fichero del SO
+clean:
+	$(RM) main_p2_e2.o main_p2_e2
