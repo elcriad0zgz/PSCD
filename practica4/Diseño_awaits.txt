@@ -1,0 +1,78 @@
+//----------------------------------------------------
+PROCESS masterTask(buffer, huecoLibre[], hayTarea[], listaTareas)
+    // Asignamos todas las tareas
+    FOR i := 0 TO listaTareas.size()-1 DO
+        t := listaTareas[i]
+        
+        colocada := false
+        WHILE NOT colocada DO
+            FOR j := 0 TO buffer.size()-1 AND NOT colocada DO
+                // Esperar a que haya hueco
+                AWAIT huecoLibre[j]
+                
+                // Poner tarea
+                buffer.put(t, j)
+                hayTarea[j] := true
+                colocada := true
+            END FOR
+        END WHILE
+    END FOR
+    
+    // Poner tareas de fin en cada buffer
+    tfin := {tipoTarea: "TF", cargaDeTrabajo: 0}
+    
+    FOR j := 0 TO buffer.size()-1 DO
+        AWAIT huecoLibre[j]
+        buffer.put(tfin, j)
+        hayTarea[j] := true
+    END FOR
+END PROCESS
+
+//----------------------------------------------------
+PROCESS controllerTask(id, buffer, huecoLibre, hayTarea, mutexResultados, resultados[][])
+    seguir := true
+    
+    WHILE seguir DO
+        // Esperar hasta tener tarea
+        AWAIT hayTarea
+        
+        // Tomar tarea
+        t := buffer.get(id)
+        huecoLibre := true
+        
+        IF t.tipoTarea == "TF" THEN
+            seguir := false  // Tarea final
+        ELSE
+            IF t.tipoTarea == "t1" THEN
+                resultados[0][0]++  // Total ejecutadas
+                error := randInt(0, 100)
+                IF error > 5 THEN
+                    AWAIT mutexResultados
+                    resultados[0][1]++  // Éxito
+                    resultados[0][2] += t.cargaDeTrabajo  // Tiempo total
+                    mutexResultados := true
+                END IF
+                
+            ELSE IF t.tipoTarea == "t2" THEN
+                resultados[1][0]++  // Total ejecutadas
+                error := randInt(0, 100)
+                IF error > 7 THEN
+                    AWAIT mutexResultados
+                    resultados[1][1]++  // Éxito
+                    resultados[1][2] += t.cargaDeTrabajo  // Tiempo total
+                    mutexResultados := true
+                END IF
+                
+            ELSE IF t.tipoTarea == "t3" THEN
+                resultados[2][0]++  // Total ejecutadas
+                error := randInt(0, 100)
+                IF error > 10 THEN
+                    AWAIT mutexResultados
+                    resultados[2][1]++  // Éxito
+                    resultados[2][2] += t.cargaDeTrabajo  // Tiempo total
+                    mutexResultados := true
+                END IF
+            END IF
+        END IF
+    END WHILE
+END PROCESS
