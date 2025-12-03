@@ -1,4 +1,0 @@
-ejemplo_1.cpp -o ejemplo_1 -std=c++11 -lpthread g++
-
-En practica_1_V1/V2, si se cambia [cout << "Soy " + nombre + "\n";] por [cout << "Soy " << nombre << endl;] 
-las frases se pueden intercalar, en casos como "Soy BaltasarSoy Aurora \n \n Soy Baltasar"
